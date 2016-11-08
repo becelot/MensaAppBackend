@@ -3,6 +3,7 @@ package controllers;
 import bt.MensaApp.Model.*;
 import bt.MensaApp.Model.JSON.JSONMensa;
 import bt.MensaApp.Model.JSON.JSONUniversity;
+import bt.MensaApp.Model.JSON.JsonParser;
 import bt.MensaApp.Model.Rwth.Uncompressed.RwthMensa;
 import bt.MensaApp.Model.Rwth.Uncompressed.RwthUniversity;
 import com.google.gson.Gson;
@@ -18,20 +19,6 @@ import java.util.Optional;
 
 public class Application extends Controller {
 
-    private static Gson getParser() {
-        RuntimeTypeAdapterFactory<IDataProvider> runtimeTypeAdapterFactory = RuntimeTypeAdapterFactory
-                .of(IDataProvider.class, "type")
-                .registerSubtype(NavigationHeader.class, "header")
-                .registerSubtype(University.class, "uni")
-                .registerSubtype(RwthUniversity.class, "rwthUni")
-                .registerSubtype(RwthMensa.class, "rwthMensa")
-                .registerSubtype(JSONUniversity.class, "jsonUni")
-                .registerSubtype(JSONMensa.class, "jsonMensa")
-                .registerSubtype(Mensa.class, "mensa")
-                .registerSubtype(Menu.class, "menu");
-        return new GsonBuilder().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
-    }
-
 
     private static List<IDataProvider> getSupportedUnivsersities() {
         ArrayList<IDataProvider> supportedUniList = new ArrayList<>();
@@ -45,7 +32,7 @@ public class Application extends Controller {
     }
 
     public static Result getUniversities() {
-        return ok(getParser().toJson(getSupportedUnivsersities()));
+        return ok(JsonParser.getParser().toJson(getSupportedUnivsersities()));
     }
 
     public static Result getMensas(String universityName) {
@@ -60,7 +47,7 @@ public class Application extends Controller {
         }
 
         List<IDataProvider> menuList = new ArrayList<IDataProvider>(uni.get().getMensaList());
-        return ok(getParser().toJson(menuList));
+        return ok(JsonParser.getParser().toJson(menuList));
     }
 
     public static Result getMenus(String universityName, String mensaName) {
@@ -88,7 +75,7 @@ public class Application extends Controller {
 
 
         List<IDataProvider> menuList = new ArrayList<IDataProvider>(mensa.get().getMenus());
-        return ok(getParser().toJson(menuList));
+        return ok(JsonParser.getParser().toJson(menuList));
     }
 
 }
