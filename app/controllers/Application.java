@@ -16,12 +16,14 @@ import views.html.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Application extends Controller {
 
 
     private static List<IDataProvider> getSupportedUnivsersities() {
         ArrayList<IDataProvider> supportedUniList = new ArrayList<>();
+        supportedUniList.add(new NavigationHeader("Universität"));
         supportedUniList.add(new RwthUniversity("RWTH Aachen", "JSON"));
         return supportedUniList;
     }
@@ -32,10 +34,18 @@ public class Application extends Controller {
     }
 
     public static Result getUniversities() {
-        return ok(JsonParser.getParser().toJson(getSupportedUnivsersities()));
+
+        List<IDataProvider> uniList = getSupportedUnivsersities();
+        for (int i = 0; i < uniList.size(); i++) {
+            if (uniList.get(i) instanceof University) {
+                uniList.set(i, new JSONUniversity((University) uniList.get(i)));
+            }
+        }
+        return ok(JsonParser.getParser().toJson(uniList));
     }
 
     public static Result getMensas(String universityName) {
+
         Optional<University> uni = getSupportedUnivsersities().stream()
                 .filter(m -> m instanceof University)
                 .map(m -> (University) m)
@@ -47,6 +57,11 @@ public class Application extends Controller {
         }
 
         List<IDataProvider> menuList = new ArrayList<IDataProvider>(uni.get().getMensaList());
+        for (int i = 0; i < menuList.size(); i++) {
+            if (menuList.get(i) instanceof Mensa) {
+                menuList.set(i, new JSONMensa((Mensa)menuList.get(i)));
+            }
+        }
         return ok(JsonParser.getParser().toJson(menuList));
     }
 
