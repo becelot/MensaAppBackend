@@ -15,21 +15,62 @@ import java.util.Optional;
 
 public class Application extends Controller {
 
+    private static Gson getParser() {
+        RuntimeTypeAdapterFactory<IDataProvider> runtimeTypeAdapterFactory = RuntimeTypeAdapterFactory
+                .of(IDataProvider.class, "type")
+                .registerSubtype(NavigationHeader.class, "header")
+                .registerSubtype(University.class, "uni")
+                .registerSubtype(RwthUniversity.class, "rwthUni")
+                .registerSubtype(Mensa.class, "mensa")
+                .registerSubtype(Menu.class, "menu");
+        return new GsonBuilder().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
+    }
+
+
+    private static List<IDataProvider> getSupportedUnivsersities() {
+        ArrayList<IDataProvider> supportedUniList = new ArrayList<>();
+        supportedUniList.add(new RwthUniversity("RWTH Aachen", "JSON"));
+        return supportedUniList;
+    }
+
+
     public static Result index() {
         return ok(index.render("Your new application is ready."));
     }
 
+    public static Result getUniversities() {
+        return ok(getParser().toJson(getSupportedUnivsersities()));
+    }
+
+    public static Result getMensas(String universityName) {
+        Optional<University> uni = getSupportedUnivsersities().stream()
+                .filter(m -> m instanceof University)
+                .map(m -> (University) m)
+                .filter(m -> m.getName().equals(universityName))
+                .findFirst();
+
+        if (!uni.isPresent()) {
+            return badRequest("University not found");
+        }
+
+        List<IDataProvider> menuList = new ArrayList<IDataProvider>(uni.get().getMensaList());
+        return ok(getParser().toJson(menuList));
+    }
+
+    public static Result getMenus(String universityName, String mensaName) {
+
+        Optional<University> uni = getSupportedUnivsersities().stream()
+                .filter(m -> m instanceof University)
+                .map(m -> (University) m)
+                .filter(m -> m.getName().equals(universityName))
+                .findFirst();
+
+        if (!uni.isPresent()) {
+            return badRequest("University not found");
+        }
 
 
-    public static Result getMenus(String mensaName) {
-        RuntimeTypeAdapterFactory<IDataProvider> runtimeTypeAdapterFactory = RuntimeTypeAdapterFactory
-                .of(IDataProvider.class, "type")
-                .registerSubtype(NavigationHeader.class, "header")
-                .registerSubtype(Menu.class, "menu");
-        Gson gson = new GsonBuilder().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
-
-        University university = new RwthUniversity("RWTH Aachen", "Uncompressed");
-        Optional<Mensa> mensa = university.getMensaList().stream()
+        Optional<Mensa> mensa = uni.get().getMensaList().stream()
                 .filter(m -> m instanceof Mensa)
                 .map(m -> (Mensa) m)
                 .filter(m -> m.getName().equals(mensaName))
@@ -41,7 +82,7 @@ public class Application extends Controller {
 
 
         List<IDataProvider> menuList = new ArrayList<IDataProvider>(mensa.get().getMenus());
-        return ok(gson.toJson(menuList));
+        return ok(getParser().toJson(menuList));
     }
 
 }
