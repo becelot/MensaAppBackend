@@ -1,6 +1,9 @@
 package controllers;
 
 import bt.MensaApp.Model.*;
+import bt.MensaApp.Model.JSON.JSONMensa;
+import bt.MensaApp.Model.JSON.JSONUniversity;
+import bt.MensaApp.Model.Rwth.Uncompressed.RwthMensa;
 import bt.MensaApp.Model.Rwth.Uncompressed.RwthUniversity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,6 +24,9 @@ public class Application extends Controller {
                 .registerSubtype(NavigationHeader.class, "header")
                 .registerSubtype(University.class, "uni")
                 .registerSubtype(RwthUniversity.class, "rwthUni")
+                .registerSubtype(RwthMensa.class, "rwthMensa")
+                .registerSubtype(JSONUniversity.class, "jsonUni")
+                .registerSubtype(JSONMensa.class, "jsonMensa")
                 .registerSubtype(Mensa.class, "mensa")
                 .registerSubtype(Menu.class, "menu");
         return new GsonBuilder().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
