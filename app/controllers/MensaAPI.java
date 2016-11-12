@@ -10,16 +10,20 @@ import bt.MensaApp.Model.Rwth.Uncompressed.RwthUniversity;
 import bt.MensaApp.Model.University;
 import play.mvc.Controller;
 import play.mvc.Result;
-import views.html.index;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Created by bened on 11/12/2016.
+ * API implementing the MensaApp functionality
  */
 public class MensaAPI extends Controller {
+
+    /**
+     * Returns a list of supported universities on the server site
+     * @return
+     */
     private static List<IDataProvider> getSupportedUnivsersities() {
         ArrayList<IDataProvider> supportedUniList = new ArrayList<>();
         supportedUniList.add(new NavigationHeader("Universität"));
@@ -27,40 +31,57 @@ public class MensaAPI extends Controller {
         return supportedUniList;
     }
 
-
-    public static Result index() {
-        return ok(index.render("MensaAPI status: OK"));
-    }
-
-
+    /**
+     * API call for resource /getUni
+     * @return A JSON object containing all universities supported
+     */
     public static Result getUniversities() {
-
+        //Get supported universities
         List<IDataProvider> uniList = getSupportedUnivsersities();
+
+        //Convert universities to JSONUniversity to ensure correct behaviour in the client
         for (int i = 0; i < uniList.size(); i++) {
             if (uniList.get(i) instanceof University) {
                 uniList.set(i, new JSONUniversity((University) uniList.get(i)));
             }
         }
+
+        //Convert to JSON and send 200 OK
         return ok(JsonParser.getParser().toJson(uniList));
     }
 
+    /**
+     * API call for resource /getMensa?uni=universityName
+     * @return A JSON object containing all canteens supported by this university
+     */
     public static Result getMensas(String universityName) {
-
+        //Retrieve university by name
         Optional<University> uni = getUniversityFromString(universityName);
 
+        //If uni does not exist, return bad request
         if (!uni.isPresent()) {
             return badRequest("University not found");
         }
 
+        //Retireve list of all canteens for this university
         List<IDataProvider> menuList = new ArrayList<IDataProvider>(uni.get().getMensaList());
+
+        //Convert canteens to JSONMensa to ensure correct behaviour in the client
         for (int i = 0; i < menuList.size(); i++) {
             if (menuList.get(i) instanceof Mensa) {
                 menuList.set(i, new JSONMensa((Mensa)menuList.get(i)));
             }
         }
+
+        //Convert to JSON and send 200 OK
         return ok(JsonParser.getParser().toJson(menuList));
     }
 
+    /**
+     * Helper function that retrieves a university by name
+     * @param universityName The name of the university
+     * @return An optional containing a university or null
+     */
     private static Optional<University> getUniversityFromString(String universityName) {
         return getSupportedUnivsersities().stream()
                 .filter(m -> m instanceof University)
@@ -70,6 +91,12 @@ public class MensaAPI extends Controller {
     }
 
 
+    /**
+     * Helper function that retrieves a mensa by university and mensa name
+     * @param uni The university the mensa belongs to
+     * @param mensaName The name of the mensa
+     * @return An optional containing a mensa or null
+     */
     private static Optional<Mensa> getMensaFromString(University uni, String mensaName) {
         return uni.getMensaList().stream()
                 .filter(m -> m instanceof Mensa)
@@ -78,23 +105,33 @@ public class MensaAPI extends Controller {
                 .findFirst();
     }
 
+    /**
+     * API call for resource /getMenus?uni=universityName&mensa=mensaName
+     * @param universityName The name of the university
+     * @param mensaName The name of the mensa
+     * @return A JSON object containing all menus found for the given university/mensa pair
+     */
     public static Result getMenus(String universityName, String mensaName) {
-
+        //Retrieve the university by name
         Optional<University> uni = getUniversityFromString(universityName);
 
+        //If university not found, return bad request
         if (!uni.isPresent()) {
             return badRequest("University not found");
         }
 
-
+        //Retrieve the mensa by name
         Optional<Mensa> mensa = getMensaFromString(uni.get(), mensaName);
 
+        //If mensa not found, return bad request
         if (!mensa.isPresent()) {
             return badRequest("Mensa not found");
         }
 
-
+        //Retrieve a list of menus
         List<IDataProvider> menuList = new ArrayList<IDataProvider>(mensa.get().getMenus());
+
+        //Convert to JSON and send 200 OK
         return ok(JsonParser.getParser().toJson(menuList));
     }
 }
