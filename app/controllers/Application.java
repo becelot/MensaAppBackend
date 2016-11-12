@@ -33,6 +33,7 @@ public class Application extends Controller {
         return ok(index.render("Your new application is ready."));
     }
 
+
     public static Result getUniversities() {
 
         List<IDataProvider> uniList = getSupportedUnivsersities();
@@ -46,11 +47,7 @@ public class Application extends Controller {
 
     public static Result getMensas(String universityName) {
 
-        Optional<University> uni = getSupportedUnivsersities().stream()
-                .filter(m -> m instanceof University)
-                .map(m -> (University) m)
-                .filter(m -> m.getName().equals(universityName))
-                .findFirst();
+        Optional<University> uni = getUniversityFromString(universityName);
 
         if (!uni.isPresent()) {
             return badRequest("University not found");
@@ -65,24 +62,33 @@ public class Application extends Controller {
         return ok(JsonParser.getParser().toJson(menuList));
     }
 
-    public static Result getMenus(String universityName, String mensaName) {
-
-        Optional<University> uni = getSupportedUnivsersities().stream()
+    private static Optional<University> getUniversityFromString(String universityName) {
+        return getSupportedUnivsersities().stream()
                 .filter(m -> m instanceof University)
                 .map(m -> (University) m)
                 .filter(m -> m.getName().equals(universityName))
                 .findFirst();
+    }
+
+
+    private static Optional<Mensa> getMensaFromString(University uni, String mensaName) {
+        return uni.getMensaList().stream()
+                .filter(m -> m instanceof Mensa)
+                .map(m -> (Mensa) m)
+                .filter(m -> m.getName().equals(mensaName))
+                .findFirst();
+    }
+
+    public static Result getMenus(String universityName, String mensaName) {
+
+        Optional<University> uni = getUniversityFromString(universityName);
 
         if (!uni.isPresent()) {
             return badRequest("University not found");
         }
 
 
-        Optional<Mensa> mensa = uni.get().getMensaList().stream()
-                .filter(m -> m instanceof Mensa)
-                .map(m -> (Mensa) m)
-                .filter(m -> m.getName().equals(mensaName))
-                .findFirst();
+        Optional<Mensa> mensa = getMensaFromString(uni.get(), mensaName);
 
         if (!mensa.isPresent()) {
             return badRequest("Mensa not found");
