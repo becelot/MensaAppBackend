@@ -1,5 +1,7 @@
 name := "mensaappserver"
 
+herokuAppName in Compile := "infinite-bastion-24337"
+
 version := "1.0"
 
 lazy val `mensaappserver` = (project in file(".")).enablePlugins(PlayJava)

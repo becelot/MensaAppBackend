@@ -47,7 +47,7 @@ public class MensaAPI extends Controller {
         }
 
         //Convert to JSON and send 200 OK
-        return ok(JsonParser.getParser().toJson(uniList));
+        return sendResponse(JsonParser.getParser().toJson(uniList));
     }
 
     /**
@@ -74,7 +74,7 @@ public class MensaAPI extends Controller {
         }
 
         //Convert to JSON and send 200 OK
-        return ok(JsonParser.getParser().toJson(menuList));
+        return sendResponse(JsonParser.getParser().toJson(menuList));
     }
 
     /**
@@ -132,6 +132,13 @@ public class MensaAPI extends Controller {
         List<IDataProvider> menuList = new ArrayList<IDataProvider>(mensa.get().getMenus());
 
         //Convert to JSON and send 200 OK
-        return ok(JsonParser.getParser().toJson(menuList));
+        return sendResponse(JsonParser.getParser().toJson(menuList));
+    }
+
+    public static Result sendResponse(String resp) {
+        byte[] r = resp.getBytes();
+        response().setHeader("Content-Length", Integer.toString(r.length));
+        response().setContentType("application/json");
+        return ok(r);
     }
 }
