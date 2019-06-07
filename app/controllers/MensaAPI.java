@@ -1,13 +1,13 @@
 package controllers;
 
-import bt.MensaApp.Model.IDataProvider;
-import bt.MensaApp.Model.JSON.JSONMensa;
-import bt.MensaApp.Model.JSON.JSONUniversity;
-import bt.MensaApp.Model.JSON.JsonParser;
-import bt.MensaApp.Model.Mensa;
-import bt.MensaApp.Model.NavigationHeader;
-import bt.MensaApp.Model.Rwth.Uncompressed.RwthUniversity;
-import bt.MensaApp.Model.University;
+import bt.MensaApp.lib.Model.IDataProvider;
+import bt.MensaApp.lib.Model.JSON.JSONMensa;
+import bt.MensaApp.lib.Model.JSON.JSONUniversity;
+import bt.MensaApp.lib.Model.JSON.JsonParser;
+import bt.MensaApp.lib.Model.Mensa;
+import bt.MensaApp.lib.Model.NavigationHeader;
+import bt.MensaApp.lib.Model.Rwth.Uncompressed.RwthUniversity;
+import bt.MensaApp.lib.Model.University;
 import play.mvc.Controller;
 import play.mvc.Result;
 
